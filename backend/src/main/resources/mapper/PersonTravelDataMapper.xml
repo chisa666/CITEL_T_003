@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.travelstats.mapper.PersonTravelDataMapper">
+
+    <!-- 年龄区间查询：允许多区间重叠，使用OR条件 -->
+    <select id="queryByAgeRanges" resultType="com.example.travelstats.entity.PersonTravelData">
+        SELECT * FROM person_travel_data
+        WHERE
+        <foreach collection="ranges" item="range" separator=" OR " open="(" close=")">
+            (YEAR(CURDATE()) - birth_year BETWEEN #{range.min} AND #{range.max})
+        </foreach>
+        ORDER BY person_id
+    </select>
+
+    <!-- 里程区间查询：允许多区间重叠，使用OR条件 -->
+    <select id="queryByMileageRanges" resultType="com.example.travelstats.entity.PersonTravelData">
+        SELECT * FROM person_travel_data
+        WHERE
+        <foreach collection="ranges" item="range" separator=" OR " open="(" close=")">
+            (total_mileage BETWEEN #{range.min} AND #{range.max})
+        </foreach>
+        ORDER BY person_id
+    </select>
+
+    <!-- 时间区间查询：不允许重叠 -->
+    <select id="queryByTimeRanges" resultType="com.example.travelstats.entity.PersonTravelData">
+        SELECT * FROM person_travel_data
+        WHERE
+        <foreach collection="ranges" item="range" separator=" OR " open="(" close=")">
+            (total_travel_time BETWEEN #{range.min} AND #{range.max})
+        </foreach>
+        ORDER BY person_id
+    </select>
+
+    <!-- 年龄区间人数统计：每个区间单独计算COUNT -->
+    <select id="countByAgeRanges" resultType="com.example.travelstats.mapper.PersonTravelDataMapper$RangeCountResult">
+        <foreach collection="ranges" item="range" separator=" UNION ALL ">
+            SELECT #{range.label} AS rangeLabel,
+                   COUNT(*) AS personCount
+            FROM person_travel_data
+            WHERE (YEAR(CURDATE()) - birth_year) BETWEEN #{range.min} AND #{range.max}
+        </foreach>
+    </select>
+
+    <!-- 里程区间人数统计 -->
+    <select id="countByMileageRanges" resultType="com.example.travelstats.mapper.PersonTravelDataMapper$RangeCountResult">
+        <foreach collection="ranges" item="range" separator=" UNION ALL ">
+            SELECT #{range.label} AS rangeLabel,
+                   COUNT(*) AS personCount
+            FROM person_travel_data
+            WHERE total_mileage BETWEEN #{range.min} AND #{range.max}
+        </foreach>
+    </select>
+
+    <!-- 时间区间人数统计 -->
+    <select id="countByTimeRanges" resultType="com.example.travelstats.mapper.PersonTravelDataMapper$RangeCountResult">
+        <foreach collection="ranges" item="range" separator=" UNION ALL ">
+            SELECT #{range.label} AS rangeLabel,
+                   COUNT(*) AS personCount
+            FROM person_travel_data
+            WHERE total_travel_time BETWEEN #{range.min} AND #{range.max}
+        </foreach>
+    </select>
+
+</mapper>
