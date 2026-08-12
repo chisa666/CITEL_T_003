@@ -1,9 +1,9 @@
 <template>
-  <div ref="chartRef" class="chart-container"></div>
+  <div ref="chartRef" class="chart-container" style="width:100%;min-height:400px;"></div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue'
 
 const props = defineProps({
   chartData: { type: Object, required: true }
@@ -13,12 +13,25 @@ const { proxy } = getCurrentInstance()
 const chartRef = ref(null)
 let chartInstance = null
 
-const initChart = () => {
+const initChart = async () => {
+  await nextTick()
   if (!chartRef.value) return
 
-  if (!chartInstance) {
-    chartInstance = proxy.$echarts.init(chartRef.value)
+  const container = chartRef.value
+  // 确保容器有可见的宽高
+  if (container.offsetWidth === 0 || container.offsetHeight === 0) {
+    // 容器不可见（如隐藏在非 active tab 内），延迟重试
+    setTimeout(() => initChart(), 100)
+    return
   }
+
+  // 先销毁旧实例，再创建新实例确保尺寸正确
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+
+  chartInstance = proxy.$echarts.init(container)
 
   const categories = props.chartData.categories || []
   const values = props.chartData.series?.[0]?.data || []
@@ -33,14 +46,13 @@ const initChart = () => {
       formatter: '{b}: {c}人 ({d}%)'
     },
     legend: {
-      orient: 'vertical',
-      left: 'left',
-      top: 'middle'
+      orient: 'horizontal',
+      bottom: 10
     },
     series: [{
       type: 'pie',
       radius: ['40%', '65%'],
-      center: ['55%', '50%'],
+      center: ['50%', '45%'],
       data: categories.map((name, i) => ({
         name,
         value: values[i] || 0
@@ -58,19 +70,22 @@ const initChart = () => {
     }]
   }
 
-  chartInstance.setOption(option, true)
+  chartInstance.setOption(option)
 }
 
 const handleResize = () => {
   chartInstance?.resize()
 }
 
+// 监测数据变化，immediate 确保挂载时首次渲染
 watch(() => props.chartData, () => {
   initChart()
-}, { deep: true })
+}, { deep: true, immediate: true })
+
+// 暴露 resize 方法供父组件调用
+defineExpose({ resize: handleResize })
 
 onMounted(() => {
-  initChart()
   window.addEventListener('resize', handleResize)
 })
 

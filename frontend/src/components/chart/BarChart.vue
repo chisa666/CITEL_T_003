@@ -1,9 +1,9 @@
 <template>
-  <div ref="chartRef" class="chart-container"></div>
+  <div ref="chartRef" class="chart-container" style="width:100%;min-height:400px;"></div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue'
 
 const props = defineProps({
   chartData: { type: Object, required: true }
@@ -13,12 +13,22 @@ const { proxy } = getCurrentInstance()
 const chartRef = ref(null)
 let chartInstance = null
 
-const initChart = () => {
+const initChart = async () => {
+  await nextTick()
   if (!chartRef.value) return
 
-  if (!chartInstance) {
-    chartInstance = proxy.$echarts.init(chartRef.value)
+  const container = chartRef.value
+  if (container.offsetWidth === 0 || container.offsetHeight === 0) {
+    setTimeout(() => initChart(), 100)
+    return
   }
+
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+
+  chartInstance = proxy.$echarts.init(container)
 
   const categories = props.chartData.categories || []
   const values = props.chartData.series?.[0]?.data || []
@@ -35,7 +45,8 @@ const initChart = () => {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '10%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
@@ -66,7 +77,7 @@ const initChart = () => {
     }]
   }
 
-  chartInstance.setOption(option, true)
+  chartInstance.setOption(option)
 }
 
 const handleResize = () => {
@@ -75,10 +86,11 @@ const handleResize = () => {
 
 watch(() => props.chartData, () => {
   initChart()
-}, { deep: true })
+}, { deep: true, immediate: true })
+
+defineExpose({ resize: handleResize })
 
 onMounted(() => {
-  initChart()
   window.addEventListener('resize', handleResize)
 })
 

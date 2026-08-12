@@ -60,7 +60,7 @@
           <span>查询结果</span>
         </template>
 
-        <el-tabs v-model="displayMode" class="display-tabs">
+        <el-tabs v-model="displayMode" class="display-tabs" @tab-change="handleTabChange">
           <el-tab-pane label="数据列表" name="table">
             <ResultTable
               :records="queryResult.tableData.records"
@@ -72,7 +72,7 @@
             />
           </el-tab-pane>
           <el-tab-pane label="折线图" name="line">
-            <LineChart :chartData="queryResult.chartData" />
+            <LineChart ref="lineChartRef" :key="chartKey" :chartData="queryResult.chartData" />
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -137,6 +137,8 @@ const querying = ref(false)
 const queryResult = ref(null)
 const displayMode = ref('table')
 const currentPage = ref(1)
+const chartKey = ref(0)
+const lineChartRef = ref(null)
 
 const showLoadDialog = ref(false)
 const showSaveDialog = ref(false)
@@ -162,6 +164,14 @@ const checkOverlap = (ranges) => {
     }
   }
   return false
+}
+
+const handleTabChange = (tabName) => {
+  if (tabName === 'line') {
+    setTimeout(() => {
+      lineChartRef.value?.resize?.()
+    }, 50)
+  }
 }
 
 const handleQuery = async () => {

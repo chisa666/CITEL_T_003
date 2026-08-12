@@ -59,7 +59,7 @@
           <span>查询结果</span>
         </template>
 
-        <el-tabs v-model="displayMode" class="display-tabs">
+        <el-tabs v-model="displayMode" class="display-tabs" @tab-change="handleTabChange">
           <el-tab-pane label="数据列表" name="table">
             <ResultTable
               :records="queryResult.tableData.records"
@@ -71,10 +71,10 @@
             />
           </el-tab-pane>
           <el-tab-pane label="柱状图" name="bar">
-            <BarChart :chartData="queryResult.chartData" />
+            <BarChart ref="barChartRef" :key="chartKey" :chartData="queryResult.chartData" />
           </el-tab-pane>
           <el-tab-pane label="饼状图" name="pie">
-            <PieChart :chartData="queryResult.chartData" />
+            <PieChart ref="pieChartRef" :key="chartKey" :chartData="queryResult.chartData" />
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -140,6 +140,9 @@ const querying = ref(false)
 const queryResult = ref(null)
 const displayMode = ref('table')
 const currentPage = ref(1)
+const chartKey = ref(0)
+const barChartRef = ref(null)
+const pieChartRef = ref(null)
 
 const showLoadDialog = ref(false)
 const showSaveDialog = ref(false)
@@ -154,6 +157,15 @@ const addRange = () => {
 
 const removeRange = (index) => {
   ranges.value.splice(index, 1)
+}
+
+const handleTabChange = (tabName) => {
+  if (tabName === 'bar' || tabName === 'pie') {
+    setTimeout(() => {
+      barChartRef.value?.resize?.()
+      pieChartRef.value?.resize?.()
+    }, 50)
+  }
 }
 
 const handleQuery = async () => {
