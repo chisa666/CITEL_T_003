@@ -1,7 +1,5 @@
 package com.example.travelstats.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.travelstats.dto.QueryRequest;
 import com.example.travelstats.dto.QueryResult;
 import com.example.travelstats.entity.PersonTravelData;
@@ -11,11 +9,9 @@ import com.example.travelstats.mapper.PersonTravelDataMapper.RangeCountResult;
 import com.example.travelstats.service.QueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -27,31 +23,28 @@ public class QueryServiceImpl implements QueryService {
     private static final Logger log = LoggerFactory.getLogger(QueryServiceImpl.class);
 
     private final PersonTravelDataMapper personTravelDataMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
 
-    public QueryServiceImpl(PersonTravelDataMapper personTravelDataMapper,
-                            RedisTemplate<String, Object> redisTemplate) {
+    public QueryServiceImpl(PersonTravelDataMapper personTravelDataMapper) {
         this.personTravelDataMapper = personTravelDataMapper;
-        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public QueryResult queryByAge(QueryRequest request) {
-        return executeQuery(request, "age",
+        return executeQuery(request,
                 personTravelDataMapper::queryByAgeRanges,
                 personTravelDataMapper::countByAgeRanges);
     }
 
     @Override
     public QueryResult queryByMileage(QueryRequest request) {
-        return executeQuery(request, "mileage",
+        return executeQuery(request,
                 personTravelDataMapper::queryByMileageRanges,
                 personTravelDataMapper::countByMileageRanges);
     }
 
     @Override
     public QueryResult queryByTime(QueryRequest request) {
-        return executeQuery(request, "time",
+        return executeQuery(request,
                 personTravelDataMapper::queryByTimeRanges,
                 personTravelDataMapper::countByTimeRanges);
     }
@@ -59,12 +52,11 @@ public class QueryServiceImpl implements QueryService {
     /**
      * 执行查询的通用方法
      *
-     * @param request   查询请求
-     * @param queryType 查询类型标识
-     * @param dataQuery 数据查询函数
+     * @param request    查询请求
+     * @param dataQuery  数据查询函数
      * @param countQuery 统计查询函数
      */
-    private QueryResult executeQuery(QueryRequest request, String queryType,
+    private QueryResult executeQuery(QueryRequest request,
                                      java.util.function.Function<List<QueryRangeItem>, List<PersonTravelData>> dataQuery,
                                      java.util.function.Function<List<QueryRangeItem>, List<RangeCountResult>> countQuery) {
 
@@ -79,24 +71,13 @@ public class QueryServiceImpl implements QueryService {
                 })
                 .collect(Collectors.toList());
 
-        // 2. 生成缓存Key
-        String cacheKey = generateCacheKey(queryType, request);
-
-        // 3. 尝试从Redis获取缓存
-        @SuppressWarnings("unchecked")
-        QueryResult cached = (QueryResult) redisTemplate.opsForValue().get(cacheKey);
-        if (cached != null) {
-            log.debug("缓存命中: {}", cacheKey);
-            return cached;
-        }
-
-        // 4. 执行数据查询
+        // 2. 执行数据查询
         List<PersonTravelData> allData = dataQuery.apply(rangeItems);
 
-        // 5. 执行区间统计查询
+        // 3. 执行区间统计查询
         List<RangeCountResult> countResults = countQuery.apply(rangeItems);
 
-        // 6. 组装分页表格数据
+        // 4. 组装分页表格数据
         int page = request.getPage();
         int pageSize = request.getPageSize();
         int fromIndex = (page - 1) * pageSize;
@@ -111,7 +92,7 @@ public class QueryServiceImpl implements QueryService {
             pageRecords = Collections.emptyList();
         }
 
-        // 7. 组装图表数据
+        // 5. 组装图表数据
         List<String> categories = new ArrayList<>();
         List<Long> dataValues = new ArrayList<>();
         for (RangeCountResult cr : countResults) {
@@ -119,7 +100,7 @@ public class QueryServiceImpl implements QueryService {
             dataValues.add(cr.getPersonCount());
         }
 
-        // 8. 构建返回结果
+        // 6. 构建返回结果
         QueryResult result = new QueryResult();
 
         QueryResult.TableData tableData = new QueryResult.TableData();
@@ -138,13 +119,7 @@ public class QueryServiceImpl implements QueryService {
         chartData.setSeries(Collections.singletonList(seriesItem));
         result.setChartData(chartData);
 
-        // 9. 写入Redis缓存(30分钟过期)
-        try {
-            redisTemplate.opsForValue().set(cacheKey, result, 30, TimeUnit.MINUTES);
-        } catch (Exception e) {
-            log.warn("Redis缓存写入失败: {}", e.getMessage());
-        }
-
+        log.debug("查询完成: 命中{}条, 图表分类{}个", allData.size(), categories.size());
         return result;
     }
 
@@ -161,15 +136,5 @@ public class QueryServiceImpl implements QueryService {
         map.put("totalMileage", data.getTotalMileage());
         map.put("totalTravelTime", data.getTotalTravelTime());
         return map;
-    }
-
-    /**
-     * 生成Redis缓存Key
-     */
-    private String generateCacheKey(String queryType, QueryRequest request) {
-        String rangesStr = request.getRanges().stream()
-                .map(r -> r.getMin() + "-" + r.getMax())
-                .collect(Collectors.joining(","));
-        return "query:" + queryType + ":" + rangesStr.hashCode() + ":" + request.getPage();
     }
 }

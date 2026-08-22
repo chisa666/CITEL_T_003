@@ -1,6 +1,6 @@
 package com.example.travelstats.common;
 
-/**
+/**自定义异常
  * 业务异常类
  * 用于抛出可预见的业务逻辑异常
  */

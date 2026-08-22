@@ -2,7 +2,7 @@ package com.example.travelstats.common;
 
 import java.io.Serializable;
 
-/**
+/**统一返回格式
  * 统一响应结果封装类
  *
  * @param <T> 响应数据类型
