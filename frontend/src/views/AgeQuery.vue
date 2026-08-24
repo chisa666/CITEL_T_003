@@ -7,8 +7,9 @@
       <template #header>
         <span>定义年龄区间 <el-tag type="info" size="small">允许多区间、允许重叠</el-tag></span>
       </template>
-
+      <!-- v-for = 遍历数组 -->
       <div v-for="(range, index) in ranges" :key="index" class="range-row">
+        <!-- v-model = 双向绑定，输入框的值和变量同步 -->
         <el-input
           v-model="range.label"
           placeholder="区间名称"
@@ -175,7 +176,7 @@ const handleTabChange = (tabName) => {
 }
 
 const handleQuery = async () => {
-  // 校验
+  // 检查每个区间是否合法
   for (const r of ranges.value) {
     if (!r.label || r.min > r.max) {
       ElMessage.warning('请正确填写区间: 名称不能为空，最小值不能大于最大值')
@@ -190,6 +191,7 @@ const handleQuery = async () => {
       page: currentPage.value,
       pageSize: 20
     })
+    //获取结果，更新queryResult
     queryResult.value = res.data
     ElMessage.success('查询成功')
   } catch (e) {
@@ -214,14 +216,14 @@ const confirmSaveConfig = async () => {
     return
   }
   try {
-    await saveConfig({
-      configName: configName.value,
-      queryType: 'AGE',
-      rangeData: JSON.stringify(ranges.value)
+    await saveConfig({   // 调用API发请求到后端
+      configName: configName.value,   // 配置名称
+      queryType: 'AGE',  // 查询类型：年龄
+      rangeData: JSON.stringify(ranges.value)   // 区间数据转成JSON字符串
     })
     ElMessage.success('保存成功')
-    showSaveDialog.value = false
-    configName.value = ''
+    showSaveDialog.value = false    // 关闭弹窗
+    configName.value = ''    // 清空输入框
   } catch (e) {
     // ignore
   }

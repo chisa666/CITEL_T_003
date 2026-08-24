@@ -11,10 +11,6 @@
           router
           class="header-menu"
         >
-          <el-menu-item index="/">
-            <el-icon><Upload /></el-icon>
-            <span>数据导入</span>
-          </el-menu-item>
           <el-menu-item index="/query/age">
             <el-icon><User /></el-icon>
             <span>年龄查询</span>
@@ -43,6 +39,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { User, DataLine, Timer, Setting } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const activeMenu = computed(() => route.path)

@@ -4,15 +4,16 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue'
-
+//接收父组件传来的图表数据props
 const props = defineProps({
   chartData: { type: Object, required: true }
 })
 
 const { proxy } = getCurrentInstance()
 const chartRef = ref(null)
+// 创建图表实例
 let chartInstance = null
-
+// 初始化图表
 const initChart = async () => {
   await nextTick()
   if (!chartRef.value) return
@@ -83,7 +84,7 @@ const initChart = async () => {
 const handleResize = () => {
   chartInstance?.resize()
 }
-
+// 监听图表数据变化，重新初始化图表
 watch(() => props.chartData, () => {
   initChart()
 }, { deep: true, immediate: true })

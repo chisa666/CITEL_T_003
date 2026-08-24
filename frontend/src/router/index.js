@@ -3,8 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    name: 'DataImport',
-    component: () => import('../views/DataImport.vue')
+    redirect: '/query/age'
   },
   {
     path: '/query/age',

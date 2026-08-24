@@ -47,7 +47,7 @@ public class RangeConfigServiceImpl implements RangeConfigService {
         config.setCreatedAt(LocalDateTime.now());
         config.setUpdatedAt(LocalDateTime.now());
 
-        rangeConfigMapper.insert(config);
+        rangeConfigMapper.insert(config);   // 插入数据库
         log.info("区间配置已保存: name={}, type={}", dto.getConfigName(), dto.getQueryType());
         return config;
     }

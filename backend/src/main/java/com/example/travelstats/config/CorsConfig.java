@@ -16,13 +16,13 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*");
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
-        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");  // 允许所有来源访问
+        config.addAllowedMethod("*");  // 允许所有HTTP方法
+        config.addAllowedHeader("*");  //  允许所有请求头
+        config.setAllowCredentials(true);  // 允许携带Cookie
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", config);  //所有路径都生效
         return new CorsFilter(source);
     }
 }

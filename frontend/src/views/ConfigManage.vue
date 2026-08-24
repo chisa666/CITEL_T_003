@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div class="page-container">
     <h3 class="section-title">区间配置管理</h3>
 

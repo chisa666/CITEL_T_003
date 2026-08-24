@@ -102,14 +102,14 @@ public class QueryServiceImpl implements QueryService {
 
         // 6. 构建返回结果
         QueryResult result = new QueryResult();
-
+        // 表格数据
         QueryResult.TableData tableData = new QueryResult.TableData();
         tableData.setRecords(pageRecords);
         tableData.setTotal(allData.size());
         tableData.setPage(page);
         tableData.setPageSize(pageSize);
         result.setTableData(tableData);
-
+        // 图表数据
         QueryResult.ChartData chartData = new QueryResult.ChartData();
         chartData.setCategories(categories);
 
@@ -120,7 +120,7 @@ public class QueryServiceImpl implements QueryService {
         result.setChartData(chartData);
 
         log.debug("查询完成: 命中{}条, 图表分类{}个", allData.size(), categories.size());
-        return result;
+        return result; // 返回查询结果
     }
 
     /**
