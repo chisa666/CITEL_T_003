@@ -57,7 +57,7 @@ const initChart = async () => {
         name,
         value: values[i] || 0
       })),
-      emphasis: {
+      emphasis: {        //鼠标悬停效果
         itemStyle: {
           shadowBlur: 10,
           shadowOffsetX: 0,

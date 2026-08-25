@@ -11,6 +11,9 @@ public class QueryRequest {
     /** 区间列表 */
     private List<RangeItem> ranges;
 
+    /** 区间筛选标签：只返回命中该区间的记录，为空则返回全部 */
+    private String filterRange;
+
     /** 当前页码 */
     private int page = 1;
 
@@ -23,6 +26,14 @@ public class QueryRequest {
 
     public void setRanges(List<RangeItem> ranges) {
         this.ranges = ranges;
+    }
+
+    public String getFilterRange() {
+        return filterRange;
+    }
+
+    public void setFilterRange(String filterRange) {
+        this.filterRange = filterRange;
     }
 
     public int getPage() {

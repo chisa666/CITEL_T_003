@@ -40,10 +40,13 @@ public class RangeConfigServiceImpl implements RangeConfigService {
 
     @Override
     public QueryRangeConfig save(RangeConfigDTO dto) {
+        //创建实体对象
         QueryRangeConfig config = new QueryRangeConfig();
+        //设置属性
         config.setConfigName(dto.getConfigName());
         config.setQueryType(dto.getQueryType());
         config.setRangeData(dto.getRangeData());
+        //设置创建时间和更新时间
         config.setCreatedAt(LocalDateTime.now());
         config.setUpdatedAt(LocalDateTime.now());
 

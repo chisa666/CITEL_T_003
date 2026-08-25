@@ -61,12 +61,32 @@
 
         <el-tabs v-model="displayMode" class="display-tabs" @tab-change="handleTabChange">
           <el-tab-pane label="数据列表" name="table">
+            <!-- 区间筛选：下拉选择要查看的区间，全部=不过滤 -->
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px">
+              <span style="color: #606266">按区间筛选：</span>
+              <el-select
+                v-model="filterRange"
+                placeholder="全部区间"
+                clearable
+                style="width: 200px"
+                @change="handleFilterChange"
+              >
+                <el-option label="全部区间" value="" />
+                <el-option
+                  v-for="(r, i) in ranges"
+                  :key="i"
+                  :label="r.label"
+                  :value="r.label"
+                />
+              </el-select>
+            </div>
             <ResultTable
               :records="queryResult.tableData.records"
               :total="queryResult.tableData.total"
               :page="queryResult.tableData.page"
               :pageSize="queryResult.tableData.pageSize"
               :columns="tableColumns"
+              show-matched-ranges
               @page-change="handlePageChange"
             />
           </el-tab-pane>
@@ -143,6 +163,7 @@ const currentPage = ref(1)
 const chartKey = ref(0)
 const barChartRef = ref(null)
 const pieChartRef = ref(null)
+const filterRange = ref('')
 
 const showLoadDialog = ref(false)
 const showSaveDialog = ref(false)
@@ -175,11 +196,16 @@ const handleQuery = async () => {
       return
     }
   }
+  // 若筛选值对应的区间已不存在，自动重置为全部
+  if (filterRange.value && !ranges.value.some(r => r.label === filterRange.value)) {
+    filterRange.value = ''
+  }
 
   querying.value = true
   try {
     const res = await queryByMileage({
       ranges: ranges.value.map(r => ({ label: r.label, min: r.min, max: r.max })),
+      filterRange: filterRange.value || null,
       page: currentPage.value,
       pageSize: 20
     })
@@ -190,6 +216,12 @@ const handleQuery = async () => {
   } finally {
     querying.value = false
   }
+}
+
+// 切换筛选区间时重新查询（回到第一页）
+const handleFilterChange = () => {
+  currentPage.value = 1
+  handleQuery()
 }
 
 const handlePageChange = (page) => {
