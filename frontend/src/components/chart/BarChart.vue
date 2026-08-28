@@ -4,7 +4,7 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, getCurrentInstance } from 'vue'
-//接收父组件传来的图表数据props
+//接收父组件传来的图表数据
 const props = defineProps({
   chartData: { type: Object, required: true }
 })
@@ -15,10 +15,10 @@ const chartRef = ref(null)
 let chartInstance = null
 // 初始化图表
 const initChart = async () => {
-  await nextTick()
+  await nextTick()  // 等待DOM更新完成
   if (!chartRef.value) return
-
   const container = chartRef.value
+  //如果容器宽度或高度为0，等待100ms后重试
   if (container.offsetWidth === 0 || container.offsetHeight === 0) {
     setTimeout(() => initChart(), 100)
     return
@@ -28,12 +28,12 @@ const initChart = async () => {
     chartInstance.dispose()
     chartInstance = null
   }
-
+//  创建 ECharts 实例
   chartInstance = proxy.$echarts.init(container)
-
+//  准备数据
   const categories = props.chartData.categories || []
   const values = props.chartData.series?.[0]?.data || []
-
+//  配置图表选项
   const option = {
     title: {
       text: '各区间人数统计',
@@ -77,7 +77,7 @@ const initChart = async () => {
       barMaxWidth: 60
     }]
   }
-
+//  渲染图表
   chartInstance.setOption(option)
 }
 

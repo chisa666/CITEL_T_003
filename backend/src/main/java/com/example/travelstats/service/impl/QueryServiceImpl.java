@@ -89,7 +89,7 @@ public class QueryServiceImpl implements QueryService {
             matchedMap.put(data, findMatchedRanges(data, rangeItems, valueExtractor));
         }
 
-        // 4. 按区间标签过滤（filterRange非空时只返回命中该区间的记录）
+        // 4. 按区间标签过滤
         String filterRange = request.getFilterRange();
         if (filterRange != null && !filterRange.isEmpty()) {
             allData = allData.stream()
@@ -103,8 +103,8 @@ public class QueryServiceImpl implements QueryService {
         // 6. 组装分页表格数据
         int page = request.getPage();
         int pageSize = request.getPageSize();
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, allData.size());
+        int fromIndex = (page - 1) * pageSize;                           // 计算当前页起始索引
+        int toIndex = Math.min(fromIndex + pageSize, allData.size());    // 计算当前页结束索引
 
         List<Map<String, Object>> pageRecords;
         if (fromIndex < allData.size()) {
@@ -125,14 +125,14 @@ public class QueryServiceImpl implements QueryService {
 
         // 8. 构建返回结果
         QueryResult result = new QueryResult();
-
+        // 表格数据
         QueryResult.TableData tableData = new QueryResult.TableData();
         tableData.setRecords(pageRecords);
         tableData.setTotal(allData.size());
         tableData.setPage(page);
         tableData.setPageSize(pageSize);
         result.setTableData(tableData);
-
+        // 图表数据
         QueryResult.ChartData chartData = new QueryResult.ChartData();
         chartData.setCategories(categories);
 
@@ -164,7 +164,7 @@ public class QueryServiceImpl implements QueryService {
                 matched.add(r.getLabel());
             }
         }
-        return matched;
+        return matched;             // 返回匹配的区间标签列表
     }
 
     /**

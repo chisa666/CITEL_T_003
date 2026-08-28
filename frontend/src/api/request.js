@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-
+//  创建 Axios 实例
 const request = axios.create({
   baseURL: '/api',
   timeout: 30000,

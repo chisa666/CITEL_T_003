@@ -9,7 +9,8 @@
     </el-tabs>
 
     <el-table :data="configs" stripe style="margin-top: 12px">
-      <el-table-column prop="id" label="ID" width="70" />
+      <!-- 序号列：显示行号，避免展示数据库内部自增主键 -->
+      <el-table-column type="index" label="序号" width="70" />
       <el-table-column prop="configName" label="配置名称" />
       <el-table-column prop="queryType" label="查询类型" width="100">
         <template #default="{ row }">

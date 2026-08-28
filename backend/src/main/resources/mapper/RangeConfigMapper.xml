@@ -5,7 +5,7 @@
     <select id="findByQueryType" resultType="com.example.travelstats.entity.QueryRangeConfig">
         SELECT * FROM query_range_config
         WHERE query_type = #{queryType}
-        ORDER BY updated_at DESC
+        ORDER BY id ASC
     </select>
 
 </mapper>

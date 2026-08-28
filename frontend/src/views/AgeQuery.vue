@@ -156,7 +156,7 @@ const tableColumns = [
   { prop: 'totalMileage', label: '总旅行里程', width: 130 },
   { prop: 'totalTravelTime', label: '总旅行时间(分钟)', width: 140 }
 ]
-
+// 创建用于存储年龄区间的响应式数组
 const ranges = ref([
   { label: '区间1', min: 10, max: 20 },
   { label: '区间2', min: 20, max: 30 }
@@ -190,7 +190,7 @@ const handleTabChange = (tabName) => {
   // 切换到图表tab时延迟resize，确保DOM已渲染
   if (tabName === 'bar' || tabName === 'pie') {
     setTimeout(() => {
-      barChartRef.value?.resize?.()
+      barChartRef.value?.resize?.()    // resize
       pieChartRef.value?.resize?.()
     }, 50)
   }
@@ -211,7 +211,7 @@ const handleQuery = async () => {
 
   querying.value = true
   try {
-    const res = await queryByAge({
+    const res = await queryByAge({     //  调用API发请求到后端
       ranges: ranges.value.map(r => ({ label: r.label, min: r.min, max: r.max })),
       filterRange: filterRange.value || null,
       page: currentPage.value,
@@ -232,10 +232,10 @@ const handleFilterChange = () => {
   currentPage.value = 1
   handleQuery()
 }
-
+// 用户点击翻页时触发
 const handlePageChange = (page) => {
-  currentPage.value = page
-  handleQuery()
+  currentPage.value = page                    // 更新当前页码
+  handleQuery()                               // 重新查询
 }
 
 const handleSaveConfig = () => {
@@ -290,7 +290,7 @@ const loadConfigs = async () => {
 
 // 打开加载弹窗时刷新列表
 const originalShowLoadDialog = showLoadDialog
-// 简单的watch方法
+// watch方法监听showLoadDialog变化，重新加载配置
 import { watch } from 'vue'
 watch(showLoadDialog, (val) => {
   if (val) loadConfigs()

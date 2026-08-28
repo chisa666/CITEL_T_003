@@ -30,7 +30,7 @@ public class RangeConfigServiceImpl implements RangeConfigService {
     public List<QueryRangeConfig> listAll() {
         return rangeConfigMapper.selectList(
                 new QueryWrapper<QueryRangeConfig>()
-                        .orderByDesc("updated_at"));
+                        .orderByAsc("id"));
     }
 
     @Override

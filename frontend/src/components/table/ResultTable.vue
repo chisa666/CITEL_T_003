@@ -25,6 +25,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页组件 -->
     <el-pagination
       v-if="total > 0"
       :current-page="page"

@@ -41,7 +41,7 @@ const initChart = async () => {
       text: '各区间人数分布',
       left: 'center'
     },
-    tooltip: {
+    tooltip: {     //  悬停提示
       trigger: 'item',
       formatter: '{b}: {c}人 ({d}%)'
     },

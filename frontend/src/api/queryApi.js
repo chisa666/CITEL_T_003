@@ -1,4 +1,5 @@
-import request from './request'
+import request from './request'     // 导入配置好的 Axios 实例
+
 
 /** 按年龄区间查询 */
 export function queryByAge(data) {

@@ -41,3 +41,11 @@ application-*.yml
 # Build
 *.tar.gz
 *.zip
+
+# Office
+*.pptx
+*.ppt
+*.docx
+*.doc
+*.xlsx
+*.xls
