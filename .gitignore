@@ -31,7 +31,12 @@ dump.rdb
 # Env
 .env
 .env.local
-application-local.yml
+.env.*.local
+
+# Sensitive config files (use environment variables instead)
+application.yml
+application-*.yml
+!application-example.yml
 
 # Build
 *.tar.gz

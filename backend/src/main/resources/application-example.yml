@@ -1,0 +1,49 @@
+# ============================================================
+# 
+# 使用方法：
+# 1. 复制此文件为 application.yml
+# 2. 填入你的真实配置信息
+# 3. application.yml 已被 .gitignore 忽略，不会提交到 Git
+#
+# ============================================================
+
+spring:
+  profiles:
+    active: dev
+
+  datasource:
+    # 数据库连接URL（根据实际情况修改）
+    url: jdbc:mysql://localhost:3306/travel_stats?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    
+    # 数据库用户名（建议使用环境变量 ${DB_USERNAME:默认值}）
+    username: ${DB_USERNAME:your_username_here}
+    
+    # 数据库密码（强烈建议使用环境变量！不要写死在这里！）
+    password: ${DB_PASSWORD:your_password_here}
+    
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      connection-timeout: 30000
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.travelstats.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.example.travelstats: DEBUG
